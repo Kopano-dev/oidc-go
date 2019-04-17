@@ -10,14 +10,12 @@ package oidc
 
 import (
 	"context"
-	"log"
-	"os"
 	"testing"
 )
 
 func TestNewProvider(t *testing.T) {
 	config := &ProviderConfig{
-		Logger: log.New(os.Stderr, "", log.LstdFlags),
+		Logger: &testingLogger{t},
 	}
 
 	ctx := context.Background()
