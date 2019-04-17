@@ -22,9 +22,7 @@ import (
 
 // Basic HTTP related global settings.
 var (
-	DefaultHTTPClient = &http.Client{
-		Timeout: time.Second * 30,
-	}
+	DefaultHTTPClient       *http.Client
 	DefaultMaxJSONFetchSize int64 = 5 * 1024 * 1024 // 5 MiB
 	DefaultJSONFetchExpiry        = time.Minute * 1
 	DefaultJSONFetchRetry         = time.Second * 3
@@ -33,6 +31,9 @@ var (
 func fetchJSON(ctx context.Context, u *url.URL, dst interface{}, client *http.Client) (time.Duration, error) {
 	if client == nil {
 		client = DefaultHTTPClient
+		if client == nil {
+			client = http.DefaultClient
+		}
 	}
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
