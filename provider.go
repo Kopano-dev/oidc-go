@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
+	"time"
 
 	"github.com/desertbit/timer"
 	"gopkg.in/square/go-jose.v2"
@@ -39,6 +40,18 @@ type Provider struct {
 	wellKnown *WellKnown
 	jwks      *jose.JSONWebKeySet
 }
+
+// ProviderConfig bundles configuration for a Provider.
+type ProviderConfig struct {
+	HTTPClient   *http.Client
+	Now          func() time.Time
+	WellKnownURI *url.URL
+	Logger       logger
+}
+
+// DefaultProviderConfig is the Provider configuration uses when none was
+// explicitly specified.
+var DefaultProviderConfig = &ProviderConfig{}
 
 // ProviderDefinition holds immutable provider information.
 type ProviderDefinition struct {
