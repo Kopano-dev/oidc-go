@@ -10,6 +10,7 @@ package oidc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -44,6 +45,33 @@ type ProviderDefinition struct {
 	WellKnown *WellKnown
 	JWKS      *jose.JSONWebKeySet
 }
+
+// A ProviderError is returned for OIDC Provider errors.
+type ProviderError struct {
+	Err error // The actual error
+}
+
+func wrapAsProviderError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	return &ProviderError{
+		Err: err,
+	}
+}
+
+func (e *ProviderError) Error() string {
+	return fmt.Sprintf("oidc provider error: %v", e.Err)
+}
+
+// These are the errors that can be returned in ProviderError.Err.
+var (
+	ErrAllreadyInitialized = errors.New("already initialized")
+	ErrNotInitialized      = errors.New("not initialized")
+	ErrWrongInitialization = errors.New("wrong initialization")
+	ErrIssuerMismatch      = errors.New("issuer mismatch")
+)
 
 // NewProvider uses OpenID Connect discovery to create a Provider.
 func NewProvider(ctx context.Context, issuer string, config *ProviderConfig) (*Provider, error) {

@@ -8,34 +8,30 @@
 
 package oidc
 
-import (
-	"errors"
-	"fmt"
+// OAuth2 error codes.
+const (
+	ErrorCodeOAuth2UnsupportedResponseType = "unsupported_response_type"
+	ErrorCodeOAuth2InvalidRequest          = "invalid_request"
+	ErrorCodeOAuth2InvalidToken            = "invalid_token"
+	ErrorCodeOAuth2InsufficientScope       = "insufficient_scope"
+	ErrorCodeOAuth2InvalidGrant            = "invalid_grant"
+	ErrorCodeOAuth2UnsupportedGrantType    = "unsupported_grant_type"
+	ErrorCodeOAuth2AccessDenied            = "access_denied"
+	ErrorCodeOAuth2ServerError             = "server_error"
+	ErrorCodeOAuth2TemporarilyUnavailable  = "temporarily_unavailable"
 )
 
-// A ProviderError is returned for OIDC Provider errors.
-type ProviderError struct {
-	Err error // The actual error
-}
+// OIDC error codes.
+const (
+	ErrorCodeOIDCInteractionRequired = "interaction_required"
+	ErrorCodeOIDCLoginRequired       = "login_required"
+	ErrorCodeOIDCConsentRequired     = "consent_required"
 
-func wrapAsProviderError(err error) error {
-	if err == nil {
-		return nil
-	}
+	ErrorCodeOIDCRequestNotSupported      = "request_not_supported"
+	ErrorCodeOIDCInvalidRequestObject     = "invalid_request_object"
+	ErrorCodeOIDCRequestURINotSupported   = "request_uri_not_supported"
+	ErrorCodeOIDCRegistrationNotSupported = "registration_not_supported"
 
-	return &ProviderError{
-		Err: err,
-	}
-}
-
-func (e *ProviderError) Error() string {
-	return fmt.Sprintf("oidc provider error: %v", e.Err)
-}
-
-// These are the errors that can be returned in ProviderError.Err.
-var (
-	ErrAllreadyInitialized = errors.New("already initialized")
-	ErrNotInitialized      = errors.New("not initialized")
-	ErrWrongInitialization = errors.New("wrong initialization")
-	ErrIssuerMismatch      = errors.New("issuer mismatch")
+	ErrorCodeOIDCInvalidRedirectURI    = "invalid_redirect_uri"
+	ErrorCodeOIDCInvalidClientMetadata = "invalid_client_metadata"
 )
