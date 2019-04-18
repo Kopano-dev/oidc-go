@@ -19,7 +19,7 @@ pipeline {
 				echo 'Bootstrapping..'
 				sh 'mkdir -p \$GOPATH/src/\$PACKAGE && rmdir \$GOPATH/src/\$PACKAGE && ln -sv \$WORKSPACE \$GOPATH/src/\$PACKAGE'
 				sh 'curl -sSL -o $GOBIN/dep https://github.com/golang/dep/releases/download/$DEP_RELEASE_TAG/dep-linux-amd64 && chmod 755 $GOBIN/dep'
-				sh 'go get -v github.com/golang/lint/golint'
+				sh 'go get -v golang.org/x/lint/golint'
 				sh 'go get -v github.com/tebeka/go2xunit'
 				sh 'go get -v github.com/axw/gocov/...'
 				sh 'go get -v github.com/AlekSi/gocov-xml'
