@@ -10,12 +10,21 @@ package oidc
 
 import (
 	"context"
+	"net/http"
 	"testing"
+	"time"
 )
+
+const baseTimeout = time.Second * 10
+
+var httpTimeoutClient = &http.Client{
+	Timeout: baseTimeout,
+}
 
 func TestNewProvider(t *testing.T) {
 	config := &ProviderConfig{
-		Logger: &testingLogger{t},
+		Logger:     &testingLogger{t},
+		HTTPClient: httpTimeoutClient,
 	}
 
 	ctx := context.Background()
@@ -26,14 +35,25 @@ func TestNewProvider(t *testing.T) {
 	}
 
 	updates := make(chan *ProviderDefinition)
-	err = provider.Initialize(ctx, updates, nil)
+	errors := make(chan error)
+	err = provider.Initialize(ctx, updates, errors)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	<-provider.WaitUntilReady()
-	t.Log("ready")
+	select {
+	case <-provider.Ready():
+		t.Log("ready")
+	case <-time.After(baseTimeout):
+		t.Error("timeout waiting for ready")
+	}
 
-	<-updates
-	t.Log("update received")
+	select {
+	case <-updates:
+		t.Log("update received")
+	case err := <-errors:
+		t.Errorf("error received: %v", err)
+	case <-time.After(baseTimeout):
+		t.Error("timeout waiting for updates")
+	}
 }

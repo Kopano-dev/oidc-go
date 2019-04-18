@@ -15,7 +15,6 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
-	"time"
 
 	"github.com/desertbit/timer"
 	"gopkg.in/square/go-jose.v2"
@@ -44,7 +43,6 @@ type Provider struct {
 // ProviderConfig bundles configuration for a Provider.
 type ProviderConfig struct {
 	HTTPClient   *http.Client
-	Now          func() time.Time
 	WellKnownURI *url.URL
 	Logger       logger
 }
@@ -116,7 +114,10 @@ func NewProvider(ctx context.Context, issuer string, config *ProviderConfig) (*P
 	return p, nil
 }
 
-// Initialize initializes the associated Provider with the provided Context.
+// Initialize initializes the associated Provider with the provided Context. If
+// updates and/or errors channels apre provided, those channels receive any
+// update or update error from the tasks resulting from the initialization. Any
+// of thes channels can be nil, disabling the corresponding events being sent.
 func (p *Provider) Initialize(ctx context.Context, updates chan *ProviderDefinition, errors chan error) error {
 	p.mutex.Lock()
 	if p.initialized {
@@ -137,7 +138,7 @@ func (p *Provider) Initialize(ctx context.Context, updates chan *ProviderDefinit
 	return wrapAsProviderError(err)
 }
 
-// Shutdown stops the associated Provider.
+// Shutdown stops the associated Provider and waits for it to do so.
 func (p *Provider) Shutdown() error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
@@ -160,8 +161,8 @@ func (p *Provider) Shutdown() error {
 	return wrapAsProviderError(err)
 }
 
-// WaitUntilReady blocks until the associated Provider is ready.
-func (p *Provider) WaitUntilReady() <-chan struct{} {
+// Ready returns a channel that's closed when the associated Provider is ready.
+func (p *Provider) Ready() <-chan struct{} {
 	p.mutex.RLock()
 	ready := p.ready
 	p.mutex.RUnlock()
