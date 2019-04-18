@@ -23,6 +23,7 @@ pipeline {
 				sh 'go get -v github.com/tebeka/go2xunit'
 				sh 'go get -v github.com/axw/gocov/...'
 				sh 'go get -v github.com/AlekSi/gocov-xml'
+				sh 'cd \$GOPATH/src/\$PACKAGE && dep ensure'
 			}
 		}
 		stage('Lint') {
