@@ -35,6 +35,7 @@ type Provider struct {
 
 	logger     logger
 	httpClient *http.Client
+	httpHeader http.Header
 
 	wellKnown *WellKnown
 	jwks      *jose.JSONWebKeySet
@@ -43,6 +44,7 @@ type Provider struct {
 // ProviderConfig bundles configuration for a Provider.
 type ProviderConfig struct {
 	HTTPClient   *http.Client
+	HTTPHeader   http.Header
 	WellKnownURI *url.URL
 	Logger       logger
 }
@@ -94,6 +96,7 @@ func NewProvider(ctx context.Context, issuer string, config *ProviderConfig) (*P
 		issuer: issuer,
 
 		httpClient: config.HTTPClient,
+		httpHeader: config.HTTPHeader,
 	}
 
 	if config.WellKnownURI != nil {
@@ -202,7 +205,7 @@ func (p *Provider) start(ctx context.Context, started chan error, updates chan *
 		if dLoad {
 			dst := WellKnown{}
 			p.logger.Printf("fetching OIDC provider discover document: %v\n", p.wellKnownURI)
-			expires, err := fetchJSON(ctx, p.wellKnownURI, &dst, p.httpClient)
+			expires, err := fetchJSON(ctx, p.wellKnownURI, &dst, p.httpClient, p.httpHeader)
 			if err != nil {
 				ignore = fmt.Errorf("failed to fetch discover document: %v", err)
 				if errors == nil {
@@ -227,7 +230,7 @@ func (p *Provider) start(ctx context.Context, started chan error, updates chan *
 					}
 				} else {
 					p.logger.Printf("fetching OIDC provider jwks: %v", wellKnown.JwksURI)
-					expires, err := fetchJSON(ctx, jwksURI, &dst, p.httpClient)
+					expires, err := fetchJSON(ctx, jwksURI, &dst, p.httpClient, p.httpHeader)
 					if err != nil {
 						ignore = fmt.Errorf("failed to fetch jwks: %v", err)
 						if errors == nil {

@@ -23,12 +23,13 @@ import (
 // Basic HTTP related global settings.
 var (
 	DefaultHTTPClient       *http.Client
+	DefaultHTTPHeader       http.Header
 	DefaultMaxJSONFetchSize int64 = 5 * 1024 * 1024 // 5 MiB
 	DefaultJSONFetchExpiry        = time.Minute * 1
 	DefaultJSONFetchRetry         = time.Second * 3
 )
 
-func fetchJSON(ctx context.Context, u *url.URL, dst interface{}, client *http.Client) (time.Duration, error) {
+func fetchJSON(ctx context.Context, u *url.URL, dst interface{}, client *http.Client, header http.Header) (time.Duration, error) {
 	if client == nil {
 		client = DefaultHTTPClient
 		if client == nil {
@@ -40,6 +41,17 @@ func fetchJSON(ctx context.Context, u *url.URL, dst interface{}, client *http.Cl
 	if err != nil {
 		return DefaultJSONFetchRetry, fmt.Errorf("failed create fetch JSON request: %v", err)
 	}
+	if header == nil {
+		header = DefaultHTTPHeader
+	}
+	if header != nil {
+		for h, values := range header {
+			for _, v := range values {
+				req.Header.Add(h, v)
+			}
+		}
+	}
+
 	res, err := client.Do(req.WithContext(ctx))
 	if err != nil {
 		return DefaultJSONFetchRetry, fmt.Errorf("failed to fetch JSON: %v", err)

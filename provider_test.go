@@ -25,7 +25,9 @@ func TestNewProvider(t *testing.T) {
 	config := &ProviderConfig{
 		Logger:     &testingLogger{t},
 		HTTPClient: httpTimeoutClient,
+		HTTPHeader: http.Header{},
 	}
+	config.HTTPHeader.Set("X-Custom-Header", "1")
 
 	ctx := context.Background()
 
