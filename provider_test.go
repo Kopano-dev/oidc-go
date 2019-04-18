@@ -54,18 +54,18 @@ func TestNewProvider(t *testing.T) {
 	}
 
 	select {
-	case <-provider.Ready():
-		t.Log("ready")
-	case <-time.After(baseTimeout):
-		t.Error("timeout waiting for ready")
-	}
-
-	select {
 	case <-updates:
 		t.Log("update received")
 	case err := <-errors:
 		t.Errorf("error received: %v", err)
 	case <-time.After(baseTimeout):
 		t.Error("timeout waiting for updates")
+	}
+
+	select {
+	case <-provider.Ready():
+		t.Log("ready")
+	case <-time.After(baseTimeout):
+		t.Error("timeout waiting for ready")
 	}
 }

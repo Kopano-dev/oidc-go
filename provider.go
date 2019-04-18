@@ -276,13 +276,6 @@ func (p *Provider) start(ctx context.Context, started chan error, updates chan *
 			}
 		}
 
-		if !readystate {
-			if p.wellKnown != nil && p.jwks != nil {
-				readystate = true
-				close(ready)
-			}
-		}
-
 		p.mutex.Unlock()
 
 		if updates != nil && ignore == nil && (dUpdated || kUpdated) {
@@ -294,6 +287,13 @@ func (p *Provider) start(ctx context.Context, started chan error, updates chan *
 		} else if errors != nil && ignore != nil {
 			p.logger.Printf("OIDC provider triggering errors")
 			errors <- wrapAsProviderError(ignore)
+		}
+
+		if !readystate {
+			if p.wellKnown != nil && p.jwks != nil {
+				readystate = true
+				close(ready)
+			}
 		}
 
 		select {
