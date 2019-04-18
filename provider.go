@@ -95,13 +95,13 @@ var (
 )
 
 // NewProvider uses OpenID Connect discovery to create a Provider.
-func NewProvider(ctx context.Context, issuer string, config *ProviderConfig) (*Provider, error) {
+func NewProvider(issuer *url.URL, config *ProviderConfig) (*Provider, error) {
 	if config == nil {
 		config = DefaultProviderConfig
 	}
 
 	p := &Provider{
-		issuer: issuer,
+		issuer: issuer.String(),
 
 		httpClient: config.HTTPClient,
 		httpHeader: config.HTTPHeader,
@@ -110,7 +110,7 @@ func NewProvider(ctx context.Context, issuer string, config *ProviderConfig) (*P
 	if config.WellKnownURI != nil {
 		p.wellKnownURI = config.WellKnownURI
 	} else {
-		wellKnownURI, err := url.Parse(issuer + "/.well-known/openid-configuration")
+		wellKnownURI, err := url.Parse(p.issuer + "/.well-known/openid-configuration")
 		if err != nil {
 			return nil, err
 		}

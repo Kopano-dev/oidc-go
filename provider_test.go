@@ -19,6 +19,7 @@ package oidc
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -39,7 +40,8 @@ func TestNewProvider(t *testing.T) {
 
 	ctx := context.Background()
 
-	provider, err := NewProvider(ctx, "https://accounts.google.com", config)
+	issuer, _ := url.Parse("https://accounts.google.com")
+	provider, err := NewProvider(issuer, config)
 	if err != nil {
 		t.Fatal(err)
 	}
