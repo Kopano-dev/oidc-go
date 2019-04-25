@@ -71,6 +71,9 @@ func HashFromSigningMethod(alg string) (hash crypto.Hash, err error) {
 	case "ES512":
 		hash = crypto.SHA512
 
+	case "EdDSA":
+		hash = crypto.SHA512
+
 	default:
 		err = fmt.Errorf("Unkown alg %s", alg)
 	}
