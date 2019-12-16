@@ -61,8 +61,13 @@ func MakeCodeChallenge(method string, verifier string) (string, error) {
 		return verifier, nil
 	case S256CodeChallengeMethod:
 		// BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+		// Base64 encoding using the URL- and filename-safe character set
+		// defined in Section 5 of [RFC4648], with all trailing '='
+		// characters omitted (as permitted by Section 3.2 of [RFC4648]) and
+		// without the inclusion of any line breaks, whitespace, or other
+		// additional characters.
 		sum := sha256.Sum256([]byte(verifier))
-		return base64.URLEncoding.EncodeToString(sum[:]), nil
+		return base64.RawURLEncoding.EncodeToString(sum[:]), nil
 	}
 
 	return "", errors.New("transform algorithm not supported")
