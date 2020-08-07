@@ -27,7 +27,6 @@ pipeline {
 				echo 'Linting..'
 				sh 'PATH=$PATH:$GOBIN golint | tee golint.txt || true'
 				sh 'go vet | tee govet.txt || true'
-				warnings parserConfigurations: [[parserName: 'Go Lint', pattern: 'golint.txt'], [parserName: 'Go Vet', pattern: 'govet.txt']], unstableTotalAll: '0'
 			}
 		}
 		stage('Test') {
@@ -35,7 +34,6 @@ pipeline {
 				echo 'Testing..'
 				sh 'PATH=$PATH:$GOBIN go test -v -count=1 -covermode=atomic -coverprofile=coverage.out | tee tests.output'
 				sh 'PATH=$PATH:$GOBIN go2xunit -fail -input tests.output -output tests.xml'
-				junit allowEmptyResults: true, testResults: 'tests.xml'
 			}
 		}
 		stage('Coverage') {
@@ -51,6 +49,8 @@ pipeline {
 	}
 	post {
 		always {
+			junit allowEmptyResults: true, testResults: 'tests.xml'
+			recordIssues qualityGates: [[threshold: 100, type: 'TOTAL', unstable: true]], tools: [goVet(pattern: 'govet.txt'), goLint(pattern: 'golint.txt')]
 			cleanWs()
 		}
 	}
