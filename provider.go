@@ -110,11 +110,11 @@ func NewProvider(issuer *url.URL, config *ProviderConfig) (*Provider, error) {
 	if config.WellKnownURI != nil {
 		p.wellKnownURI = config.WellKnownURI
 	} else {
-		wellKnownURI, err := url.Parse(p.issuer + "/.well-known/openid-configuration")
+		relativeWellKnownURI, err := url.Parse("/.well-known/openid-configuration")
 		if err != nil {
 			return nil, err
 		}
-		p.wellKnownURI = wellKnownURI
+		p.wellKnownURI = issuer.ResolveReference(relativeWellKnownURI)
 	}
 	if config.Logger != nil {
 		p.logger = config.Logger
